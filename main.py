@@ -19,7 +19,7 @@ auth_url = "https://accounts.spotify.com/authorize?" + urlencode(auth_headers)
 
 
 # get the code from the URL
-code = "AQBy_9pFdUkV8Flgzg8wcLp5qqlAIQq1I-0e9zt9ZPcIxZ6NHKdxqEetNgor11_QXs9DlnwX_fWWvBCOy3zXf1HH_zjEshwOdxYEhRCYFPAW_WMd23bqpAyDP680NbuD1A0PghlfaeBAKXOIVVpByIjhgvWc_KiNQHlIE3imFr8po21IgvKAakE5he9XFLp2cFvoehU"
+code = "AQCVnqChmv73YI7Hh9VaUo5XKPw_uxJztOsc_sDGWQ1ZeYZbdxK3WiOGBBG-776DLawEaOV0ORtF9TVkFc4938Kv-h0nzQreR4JCxAusTBlLIZijUS0iBQAhlUkmadvGRO7i3tnc__2VsP0qiS3r1Ua1FjMeuBjVJLUhMX9uOKH7kYFx5eHvjxG6UmHt2r5t0oxPnzw"
 
 encoded_credentials = base64.b64encode(
     client_id.encode() + b":" + client_secret.encode()
@@ -80,15 +80,37 @@ url = "https://api.spotify.com/v1/search"
 headers = {"Authorization": f"Bearer {token}"}
 params = {"type": "artist", "market": "FR", "limit": 50, "offset": 150}
 
+tab = []
+
+
 for letter in alphabet:
     params["q"] = letter
     response = requests.get(url, headers=headers, params=params)
 
     print("Récupération des artistes commençant par la lettre :", letter)
     if response.status_code == 200:
-        print(letter, ":", response.json())
         data = response.json()
         with open(f"./result/{letter}.json", "a") as file:
-            json.dump(data, file)
+            # get id, popularity, type, genres from data
+            for artist in data["artists"]["items"]:
+                currentID = artist["id"]
+                currentPopularity = artist["popularity"]
+                currentType = artist["type"]
+                currentGenres = artist["genres"]
+                artist = {
+                    "id": currentID,
+                    "popularity": currentPopularity,
+                    "type": currentType,
+                    "genres": currentGenres,
+                }
+
+                tab.append(artist)
+            print(tab)
+            file.write(json.dumps(tab))
+            tab = []
+
     else:
         print("Erreur:", response.text)
+
+
+bigFile = open("./result/artists.json", "a")
