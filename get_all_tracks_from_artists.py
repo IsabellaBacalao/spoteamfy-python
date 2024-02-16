@@ -2,23 +2,40 @@ import requests
 import time
 import base64
 import json
+import random
 
-client_id = "1cba597e55d94b3d87ee781a30363ed7"
-client_secret = "f8a0dd1992e743668702625e61906739"
 
-# Obtaining access token
-encoded_credentials = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode()
-token_url = "https://accounts.spotify.com/api/token"
-token_data = {"grant_type": "client_credentials"}
-token_headers = {"Authorization": f"Basic {encoded_credentials}"}
-token_response = requests.post(token_url, data=token_data, headers=token_headers)
-token = token_response.json()["access_token"]
+def getRandomSecret():
+    randomNumber = random.randint(1, 3)
+    if randomNumber == 1:
+        client_id = "1cba597e55d94b3d87ee781a30363ed7"
+        client_secret = "f8a0dd1992e743668702625e61906739"
+    elif randomNumber == 2:
+        client_id = "f30935dbf75343dfa95d0910742027ad"
+        client_secret = "7ec5594edbcf4d0ba40353bd2b97d8dc"
+    else:
+        client_id = "9707531cd3a04695935120e738853d73"
+        client_secret = "f1f9175956d844048ac9a781d3e72f05"
+    return client_id, client_secret
+
+
+def getNewToken():
+    client_id, client_secret = getRandomSecret()
+    encoded_credentials = base64.b64encode(
+        f"{client_id}:{client_secret}".encode()
+    ).decode()
+    token_url = "https://accounts.spotify.com/api/token"
+    token_data = {"grant_type": "client_credentials"}
+    token_headers = {"Authorization": f"Basic {encoded_credentials}"}
+    token_response = requests.post(token_url, data=token_data, headers=token_headers)
+    token = token_response.json()["access_token"]
+    return token
 
 
 # Function to fetch tracks of an album
 def get_album_tracks(album_id):
     tracks_url = f"https://api.spotify.com/v1/albums/{album_id}/tracks"
-    tracks_headers = {"Authorization": f"Bearer {token}"}
+    tracks_headers = {"Authorization": f"Bearer {getNewToken()}"}
     tracks_response = requests.get(tracks_url, headers=tracks_headers)
     # numberOfTracks = tracks_response.json()["total"]
     # print(f"Number of tracks : {numberOfTracks}")
@@ -34,7 +51,7 @@ def get_album_tracks(album_id):
 def get_artist_albums(artist_id):
     try:
         albums_url = f"https://api.spotify.com/v1/artists/{artist_id}/albums"
-        albums_headers = {"Authorization": f"Bearer {token}"}
+        albums_headers = {"Authorization": f"Bearer {getNewToken()}"}
         albums_response = requests.get(albums_url, headers=albums_headers)
 
         if albums_response.status_code == 200:
