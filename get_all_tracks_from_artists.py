@@ -85,13 +85,23 @@ def get_artist_albums(artist_id):
         return None
 
 
+id_recherche = "6ZjFtWeHP9XN7FeKSUe80S"  # ID of the artist to search for
 # Retrieving artist data from JSON
 with open("all_artists.json", "r") as artist_file:
     all_artists = json.load(artist_file)
+    index_id_recherche = next((index for (index, d) in enumerate(all_artists) if d["id"] == id_recherche), None)
+    if index_id_recherche is not None:
+        filtered_artists = all_artists[index_id_recherche:]
+    else:
+        filtered_artists = all_artists    
 
 # Retrieving tracks of all albums of all artists
 all_tracks = []
-for artist in all_artists:
+print("Total artists:", len(all_artists))
+print("Total remaining artists to fetch tracks for:", len(filtered_artists))
+print("filtered_artists:", filtered_artists[0])
+
+for artist in filtered_artists:
     print(f"Fetching tracks for", artist["name"], "(" + artist["id"] + ")")
     artist_albums = get_artist_albums(artist["id"])
     if artist_albums:
