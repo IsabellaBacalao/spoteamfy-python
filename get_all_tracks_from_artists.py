@@ -1,9 +1,10 @@
 import requests
+import time
 import base64
 import json
 
-client_id = "f30935dbf75343dfa95d0910742027ad"
-client_secret = "7ec5594edbcf4d0ba40353bd2b97d8dc"
+client_id = "1cba597e55d94b3d87ee781a30363ed7"
+client_secret = "f8a0dd1992e743668702625e61906739"
 
 # Obtaining access token
 encoded_credentials = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode()
@@ -22,6 +23,7 @@ def get_album_tracks(album_id):
     # numberOfTracks = tracks_response.json()["total"]
     # print(f"Number of tracks : {numberOfTracks}")
     if tracks_response.status_code == 200:
+        # return tracks_response.json()["items"]
         tracks_data = tracks_response.json()["items"]
         return [track["id"] for track in tracks_data]
     else:
@@ -78,9 +80,16 @@ for artist in all_artists:
             album_tracks = get_album_tracks(album_id)
             if album_tracks:
                 all_tracks.extend(album_tracks)
+                with open("all_tracks.json", "r") as outfile:
+                    file = json.load(outfile)
+                    file.extend(album_tracks)
+                with open("all_tracks.json", "w") as outfile:
+                    json.dump(file, outfile, indent=4)
+                    time.sleep(0.3)
+
 
 # Writing all tracks to a JSON file
-with open("all_tracks.json", "w") as outfile:
-    json.dump(all_tracks, outfile, indent=4)
-
+# with open("all_tracks.json", "w") as outfile:
+#     json.dump(all_tracks, outfile, indent=4)
+#
 print("Data written to all_tracks.json")
