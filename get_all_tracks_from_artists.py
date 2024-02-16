@@ -4,23 +4,26 @@ import base64
 import json
 import random
 
+counter = 1
 
-def getRandomSecret():
-    randomNumber = random.randint(1, 3)
-    if randomNumber == 1:
+
+def getNextSecret():
+    global counter
+    if counter == 1:
         client_id = "1cba597e55d94b3d87ee781a30363ed7"
         client_secret = "f8a0dd1992e743668702625e61906739"
-    elif randomNumber == 2:
+    elif counter == 2:
         client_id = "f30935dbf75343dfa95d0910742027ad"
         client_secret = "7ec5594edbcf4d0ba40353bd2b97d8dc"
     else:
         client_id = "9707531cd3a04695935120e738853d73"
         client_secret = "f1f9175956d844048ac9a781d3e72f05"
+    counter = (counter % 3) + 1
     return client_id, client_secret
 
 
 def getNewToken():
-    client_id, client_secret = getRandomSecret()
+    client_id, client_secret = getNextSecret()
     encoded_credentials = base64.b64encode(
         f"{client_id}:{client_secret}".encode()
     ).decode()
