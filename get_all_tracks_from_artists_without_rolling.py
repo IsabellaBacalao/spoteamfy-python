@@ -7,6 +7,8 @@ import random
 client_id = "4527131f19f94d1c9853e19ef12d282f"
 client_secret = "41273d9784e44293b467b88d66bcd45e"
 
+canGo = False
+
 
 def getNewToken():
     encoded_credentials = base64.b64encode(
@@ -93,20 +95,27 @@ print("Total remaining artists to fetch tracks for:", len(filtered_artists))
 print("filtered_artists:", filtered_artists[0])
 
 for artist in filtered_artists:
-    print(f"Fetching tracks for", artist["name"], "(" + artist["id"] + ")")
-    artist_albums = get_artist_albums(artist["id"])
-    if artist_albums:
-        for album_id in artist_albums:
-            print("Fetching tracks for album", album_id)
-            album_tracks = get_album_tracks(album_id)
-            if album_tracks:
-                all_tracks.extend(album_tracks)
-                with open("all_tracks.json", "r") as outfile:
-                    file = json.load(outfile)
-                    file.extend(album_tracks)
-                with open("all_tracks.json", "w") as outfile:
-                    json.dump(file, outfile, indent=4)
-                    # time.sleep(0.3)
+    if artist["id"] == "1q7T9rFQ2a2ukA1PU51fo3":  # kobalad
+        canGo = True
+
+        print(f"Fetching tracks for", artist["name"], "(" + artist["id"] + ")")
+        artist_albums = get_artist_albums(artist["id"])
+        if artist_albums:
+            for album_id in artist_albums:
+                print("Fetching tracks for album", album_id)
+                album_tracks = get_album_tracks(album_id)
+                if album_tracks:
+                    all_tracks.extend(album_tracks)
+                    with open("all_tracks.json", "r") as outfile:
+                        file = json.load(outfile)
+                        file.extend(album_tracks)
+                    with open("all_tracks.json", "w") as outfile:
+                        json.dump(file, outfile, indent=4)
+                        # time.sleep(0.3)
+
+    if canGo == False:
+        print(f"Skipping", artist["name"], "(" + artist["id"] + ")")
+        continue
 
 
 # Writing all tracks to a JSON file
