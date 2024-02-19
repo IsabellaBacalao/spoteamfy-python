@@ -4,8 +4,10 @@ import base64
 import json
 import random
 
-client_id = "4527131f19f94d1c9853e19ef12d282f"
-client_secret = "41273d9784e44293b467b88d66bcd45e"
+# client_id = "f30935dbf75343dfa95d0910742027ad"
+# client_secret = "41273d9784e44293b467b88d66bcd45e"
+client_id = "f30935dbf75343dfa95d0910742027ad"
+client_secret = "7ec5594edbcf4d0ba40353bd2b97d8dc"
 
 canGo = False
 
