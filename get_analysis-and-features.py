@@ -25,6 +25,10 @@ def get_track_data(track_id, token):
     response = requests.get(
         f"https://api.spotify.com/v1/audio-analysis/{track_id}", headers=headers
     )
+    if response.status_code == 200:
+        logging.info("[OK] - ANALYSIS - Response code: 200")
+    else:
+        logging.error(f"[ERROR] - ANALYSIS - Response code: {response.status_code}")
     return response.json()
 
 
@@ -33,12 +37,16 @@ def get_audio_features(track_id, token):
     response = requests.get(
         f"https://api.spotify.com/v1/audio-features/{track_id}", headers=headers
     )
+    if response.status_code == 200:
+        logging.info("[OK] - FEATURES - Response code: 200")
+    else:
+        logging.error(f"[ERROR] - FEATURES - Response code: {response.status_code}")
     return response.json()
 
 
 def main(starting_track_id=None):
-    client_id = "f30935dbf75343dfa95d0910742027ad"
-    client_secret = "7ec5594edbcf4d0ba40353bd2b97d8dc"
+    client_id = "9707531cd3a04695935120e738853d73"
+    client_secret = "f1f9175956d844048ac9a781d3e72f05"
 
     token = getNewToken(client_id, client_secret)
 
@@ -106,10 +114,10 @@ def main(starting_track_id=None):
 
 
 if __name__ == "__main__":
-    starting_track_id = input(
-        "Enter the starting track ID (or leave blank to start from the beginning): "
-    ).strip()
-    if starting_track_id:
-        main(starting_track_id)
-    else:
-        main()
+    # starting_track_id = input(
+    #     "Enter the starting track ID (or leave blank to start from the beginning): "
+    # ).strip()
+    # if starting_track_id:
+    #     main(starting_track_id)
+    # else:
+    main()
