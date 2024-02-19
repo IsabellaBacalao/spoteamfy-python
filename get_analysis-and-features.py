@@ -35,7 +35,7 @@ def get_audio_features(track_id, token):
     return response.json()
 
 
-def main():
+def main(starting_track_id=None):
     client_id = "f30935dbf75343dfa95d0910742027ad"
     client_secret = "7ec5594edbcf4d0ba40353bd2b97d8dc"
 
@@ -43,6 +43,16 @@ def main():
 
     with open("all_tracks.json") as f:
         track_ids = json.load(f)
+
+    if starting_track_id:
+        try:
+            index = track_ids.index(starting_track_id)
+            track_ids = track_ids[index:]
+        except ValueError:
+            logging.error(
+                f"Starting track ID '{starting_track_id}' not found in the list."
+            )
+            sys.exit(1)
 
     all_tracks_data = []
 
@@ -83,4 +93,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    starting_track_id = input(
+        "Enter the starting track ID (or leave blank to start from the beginning): "
+    ).strip()
+    if starting_track_id:
+        main(starting_track_id)
+    else:
+        main()
