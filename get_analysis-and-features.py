@@ -15,6 +15,7 @@ def getNewToken(client_id, client_secret):
     token_data = {"grant_type": "client_credentials"}
     token_headers = {"Authorization": f"Basic {encoded_credentials}"}
     token_response = requests.post(token_url, data=token_data, headers=token_headers)
+    token_response.raise_for_status()  # Raise an exception for any error status
     token = token_response.json()["access_token"]
     return token
 
@@ -70,7 +71,19 @@ def main(starting_track_id=None):
             all_tracks_data.append(combined_data)
 
         except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 429:
+            if e.response.status_code == 401:
+                logging.info("Token expired. Regenerating token...")
+                token = getNewToken(client_id, client_secret)
+                # Retry the failed request with the new token
+                track_data = get_track_data(track_id, token)
+                audio_features = get_audio_features(track_id, token)
+                combined_data = {
+                    "track_id": track_id,
+                    "analysis_data": track_data,
+                    "features_data": audio_features,
+                }
+                all_tracks_data.append(combined_data)
+            elif e.response.status_code == 429:
                 logging.error("Rate limit exceeded. Exiting...")
                 with open("error_data.json", "w") as error_file:
                     json.dump(all_tracks_data, error_file, indent=4)
