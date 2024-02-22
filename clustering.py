@@ -1,4 +1,5 @@
 import pandas as pd
+from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
@@ -6,8 +7,9 @@ from sklearn.manifold import TSNE
 import seaborn as sns
 from sklearn.metrics import silhouette_score
 import numpy as np
+import joblib
 
-# Charger les données (Assurez-vous de mettre à jour le chemin vers votre fichier de données)
+# Charger les données
 df = pd.read_csv('dataset.csv')
 
 # Préparation des données: Sélectionner les caractéristiques numériques pertinentes pour le clustering
@@ -18,24 +20,21 @@ X = df[features]
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-# Déterminer le nombre optimal de clusters en utilisant la méthode du coude
-inertia = []
-silhouette_coefficients = []
-# Choisir le nombre de clusters basé sur les graphiques précédents
+# Appliquer PCA pour la réduction de dimensionnalité
+pca = PCA(n_components=0.9)  # Conserver 90% de la variance
+X_pca = pca.fit_transform(X_scaled)
 
-# Appliquer K-means avec le nombre optimal de clusters choisi selon les graphiques
-n_clusters_optimal = 7# (le nombre de clusters que vous avez choisi, par exemple 5)
+# Appliquer K-means sur les données réduites par PCA
+n_clusters_optimal = 7
 kmeans_optimal = KMeans(n_clusters=n_clusters_optimal, random_state=42)
-kmeans_optimal.fit(X_scaled)
+kmeans_optimal.fit(X_pca)
 
 # Nommer les clusters en fonction de leurs caractéristiques moyennes
 def name_clusters(cluster_centers, features):
     cluster_names = []
-    print(cluster_centers)
     for i, center in enumerate(cluster_centers):
-        characteristics = [features[j] for j in center.argsort()[-3:]]  # Prendre les 3 caractéristiques les plus élevées
+        characteristics = [features[j] for j in center.argsort()[-3:]]
         name = f"Cluster {i+1} - {' '.join(characteristics)}"
-        print(name)
         cluster_names.append(name)
     return cluster_names
 
@@ -44,10 +43,10 @@ cluster_names = name_clusters(kmeans_optimal.cluster_centers_, features)
 # Associer chaque point de données à son cluster nommé
 labels_named = np.array(cluster_names)[kmeans_optimal.labels_]
 
-# Réduire la dimensionnalité pour la visualisation avec t-SNE
+# Réduire la dimensionnalité pour la visualisation avec t-SNE sur les données PCA
 tsne = TSNE(n_components=2, random_state=42)
-X_tsne = tsne.fit_transform(X_scaled)
-
+X_tsne = tsne.fit_transform(X_pca)  # Appliquer t-SNE sur les données PCA
+np.save('X_tsne.npy', X_tsne)
 # Visualiser les clusters avec des noms
 df_vis = pd.DataFrame(X_tsne, columns=['TSNE1', 'TSNE2'])
 df_vis['Cluster'] = labels_named
@@ -60,19 +59,14 @@ plt.ylabel('TSNE Dimension 2')
 plt.legend(title='Cluster')
 plt.show()
 
+# Sauvegarde des objets
+joblib.dump(scaler, "scaler.save")
+joblib.dump(pca, "pca_model.save")
+joblib.dump(kmeans_optimal, "kmeans_model.save")
+joblib.dump(cluster_names, "cluster_names.save")
 
-# Sauvegarde de l'objet StandardScaler
-scaler_filename = "scaler.save"
-joblib.dump(scaler, scaler_filename)
+print(f"Modèle sauvegardé sous : kmeans_model.save")
+print(f"Scaler sauvegardé sous : scaler.save")
+print(f"PCA modèle sauvegardé sous : pca_model.save")
+print(f"Noms des clusters sauvegardés sous : cluster_names.save")
 
-# Sauvegarde du modèle KMeans
-model_filename = "kmeans_model.save"
-joblib.dump(kmeans_optimal, model_filename)
-
-# Si nécessaire, sauvegarder le nom des clusters
-names_filename = "cluster_names.save"
-joblib.dump(cluster_names, names_filename)
-
-print(f"Modèle sauvegardé sous : {model_filename}")
-print(f"Scaler sauvegardé sous : {scaler_filename}")
-print(f"Noms des clusters sauvegardés sous : {names_filename}")
