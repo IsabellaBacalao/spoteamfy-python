@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -31,20 +31,20 @@ def predict_cluster(user_data):
     user_clusters = kmeans_optimal.predict(user_features_pca)
 
     # Affichage des données d'origine et utilisateur sur le même graphique
-    plt.figure(figsize=(12, 8))
-
-    # Plot des points TSNE pour les données d'origine
-    plt.scatter(X_tsne_orig[:, 0], X_tsne_orig[:, 1], c=orig_clusters, cmap='viridis', alpha=0.5, label='Original Data')
-
-    # Plot des points PCA pour les données utilisateur (comme approximation)
-    # Note: ceci est une simplification. En réalité, vous pourriez vouloir recalculer TSNE pour une intégration parfaite.
-    plt.scatter(user_features_pca[:, 0], user_features_pca[:, 1], c='red', edgecolor='white', linewidth=1, s=100, label='User Data')
-
-    plt.title('Visualisation TSNE avec données utilisateur')
-    plt.xlabel('PCA Dimension 1')
-    plt.ylabel('PCA Dimension 2')
-    plt.legend()
-    plt.show()
+    # plt.figure(figsize=(12, 8))
+    #
+    # # Plot des points TSNE pour les données d'origine
+    # plt.scatter(X_tsne_orig[:, 0], X_tsne_orig[:, 1], c=orig_clusters, cmap='viridis', alpha=0.5, label='Original Data')
+    #
+    # # Plot des points PCA pour les données utilisateur (comme approximation)
+    # # Note: ceci est une simplification. En réalité, vous pourriez vouloir recalculer TSNE pour une intégration parfaite.
+    # plt.scatter(user_features_pca[:, 0], user_features_pca[:, 1], c='red', edgecolor='white', linewidth=1, s=100, label='User Data')
+    #
+    # plt.title('Visualisation TSNE avec données utilisateur')
+    # plt.xlabel('PCA Dimension 1')
+    # plt.ylabel('PCA Dimension 2')
+    # plt.legend()
+    # plt.show()
 
 
     user_features_pca_coords = user_features_pca  # Si vous utilisez PCA comme approximation
