@@ -1,40 +1,34 @@
+import joblib
 import numpy as np
 import pandas as pd
-from tensorflow.keras.models import load_model
-from sklearn.manifold import TSNE
-import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from sklearn.manifold import TSNE
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-# Étape 1: Charger le modèle
-model_path = 'music_genre_classifier_model.h5'
-model = load_model(model_path)
+# ... (le reste du script pour le prétraitement et la formation des clusters)
+features = ['acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'loudness', 'speechiness', 'tempo', 'valence']
+# Imaginons que vous ayez de nouvelles données utilisateur que vous souhaitez traiter
+# Pour l'exemple, supposons que nous avons un DataFrame 'new_user_data' au même format que 'df'
+new_user_data = pd.read_csv('new_user_data.csv')
+new_user_features = new_user_data[features]
 
-# Étape 2: Préparer les données (ceci est un exemple, ajustez selon vos données)
-# Supposons que vous avez déjà un DataFrame `df` avec vos données
-df = pd.read_csv('dataset.csv')
-# Effectuez ici le prétraitement nécessaire (normalisation, etc.)
+# Prétraitement des nouvelles données avec le StandardScaler sauvegardé
+scaler = joblib.load('scaler.save')
+new_user_features_scaled = scaler.transform(new_user_features)
 
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(df.drop('track_genre', axis=1))  # Remplacer 'genre' par la colonne cible appropriée
+# Utilisation du modèle KMeans sauvegardé pour attribuer un cluster aux nouvelles données
+kmeans_optimal = joblib.load('kmeans_model.save')
+new_user_labels = kmeans_optimal.predict(new_user_features_scaled)
 
-# Étape 3: Obtenir les prédictions
-predictions = model.predict(X_scaled)
-predicted_classes = np.argmax(predictions, axis=1)
+# Associer chaque nouvelle donnée utilisateur à son cluster nommé
+cluster_names = joblib.load('cluster_names.save')
+new_user_cluster_names = np.array(cluster_names)[new_user_labels]
 
-# Étape 4: Réduire la dimensionnalité pour la visualisation
-tsne = TSNE(n_components=2, random_state=42)
-X_tsne = tsne.fit_transform(X_scaled)
+# Ajouter les noms des clusters au DataFrame des nouvelles données utilisateur
+new_user_data['Cluster'] = new_user_cluster_names
 
-# Étape 5: Visualiser les clusters
-df_vis = pd.DataFrame(X_tsne, columns=['TSNE1', 'TSNE2'])
-df_vis['Predicted Genre'] = predicted_classes
-
-plt.figure(figsize=(10, 8))
-sns.scatterplot(x='TSNE1', y='TSNE2', hue='Predicted Genre', palette=sns.color_palette("hsv", len(np.unique(predicted_classes))), data=df_vis)
-plt.title('Clusters de genres musicaux prédits')
-plt.xlabel('TSNE Dimension 1')
-plt.ylabel('TSNE Dimension 2')
-plt.legend(title='Predicted Genre')
-plt.show()
+# Afficher le DataFrame avec le cluster assigné
+print(new_user_data[['Cluster'] + features])
 

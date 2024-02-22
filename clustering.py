@@ -21,34 +21,6 @@ X_scaled = scaler.fit_transform(X)
 # Déterminer le nombre optimal de clusters en utilisant la méthode du coude
 inertia = []
 silhouette_coefficients = []
-K = range(2, 50)  # Tester pour un nombre de clusters de 2 à 10
-
-for k in K:
-    kmeans = KMeans(n_clusters=k, random_state=42)
-    kmeans.fit(X_scaled)
-    inertia.append(kmeans.inertia_)
-    score = silhouette_score(X_scaled, kmeans.labels_)
-    silhouette_coefficients.append(score)
-    print(f"Nombre de clusters: {k}, Inertia: {kmeans.inertia_}, Coefficient de silhouette: {score}")
-# Visualiser la méthode du coude
-
-plt.figure(figsize=(10, 6))
-plt.plot(K, inertia, '-o')
-plt.title('Méthode du coude pour déterminer le nombre optimal de clusters')
-plt.xlabel('Nombre de clusters')
-plt.ylabel('Inertia')
-plt.xticks(K)
-plt.show()
-
-# Visualiser les coefficients de silhouette
-plt.figure(figsize=(10, 6))
-plt.plot(K, silhouette_coefficients, '-o')
-plt.title('Coefficients de silhouette par nombre de clusters')
-plt.xlabel('Nombre de clusters')
-plt.ylabel('Coefficient de silhouette')
-plt.xticks(K)
-plt.show()
-
 # Choisir le nombre de clusters basé sur les graphiques précédents
 
 # Appliquer K-means avec le nombre optimal de clusters choisi selon les graphiques
@@ -87,3 +59,20 @@ plt.xlabel('TSNE Dimension 1')
 plt.ylabel('TSNE Dimension 2')
 plt.legend(title='Cluster')
 plt.show()
+
+
+# Sauvegarde de l'objet StandardScaler
+scaler_filename = "scaler.save"
+joblib.dump(scaler, scaler_filename)
+
+# Sauvegarde du modèle KMeans
+model_filename = "kmeans_model.save"
+joblib.dump(kmeans_optimal, model_filename)
+
+# Si nécessaire, sauvegarder le nom des clusters
+names_filename = "cluster_names.save"
+joblib.dump(cluster_names, names_filename)
+
+print(f"Modèle sauvegardé sous : {model_filename}")
+print(f"Scaler sauvegardé sous : {scaler_filename}")
+print(f"Noms des clusters sauvegardés sous : {names_filename}")
